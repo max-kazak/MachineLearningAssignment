@@ -1,0 +1,109 @@
+---
+title: "MachineLearning Assignment"
+subtitle: "Barbell lifts classification"
+author: "Max"
+date: "Sunday, November 23, 2014"
+output: html_document
+---
+
+### Introduction
+This report was prepared as part of assignment of **Practical Machine Learning** course from  *Johns Hopkins University*. This report operates with data from *Groupware@LES* with data from multiple sensors worn by participants who performed barbell lifts in different ways. The goal of this analysis is to find the method and model that could be used in prediction algorithm of the ways the lifts was performed. This prediction could be used later to help users perform physical excersizes more efficiently without risk to their health.
+
+### Goal
+The final goal of the analysis is to achive at least 99% specificity and sensitivity in perdiction of activity quality based on data from activity monitors.
+
+### Data Preparation
+Before the data can be used in prediction purposes its worth to have first a look at it.
+```{r}
+data <- read.csv('pml-training.csv')
+task <- read.csv('pml-testing.csv')
+```
+As it seems the input data has `r length(names(data))` features that can be potentially used in prediction model.  
+Though the first 5 features doesn't seem to have any information correlated with the problem, as such information as date shouldn't influence on the way the excersize was performed: **`r names(data)[1:6]`**  
+Also quick look at the table shows that there are a lot of missing data.
+```{r results='hide'}
+head(data, n=10)
+```
+
+To fix this two problems let's remove first 5 columns and all columns that contain less that *90%* of useful information:
+```{r}
+data.rel <- data[,-seq(1,5)]
+data.rel <- data.rel[sapply(data.rel, function(x) sum(is.na(x))<dim(data)[1]*0.9)]
+data.rel <- data.rel[sapply(data.rel, function(x) sum(x=='')<dim(data)[1]*0.9)]
+names(data.rel)
+```
+
+As the result only `r length(names(data.rel))` features left including **`r names(data.rel)[55]`** which we should predict.
+
+
+###Training
+```{r, echo=FALSE}
+library(caret);
+```
+Finally we seems to be prepared for actual ML training. In this section we create few models and define which one suits our purposes.
+
+####Cross Validation
+But first let's devide our data into to groups: **training** that will be used to actual model creation and **testing** that will help us to estimate model error rate. To estimate the model accuracy we will use Cross-Validation method with calculation Specificity, Sensitivity and a few other parameters.  
+
+```{r}
+inTrain <- createDataPartition(data.rel$classe, p=0.7, list=F)
+training <- data.rel[inTrain, ]
+testing <- data.rel[-inTrain, ]
+dim(training); dim(testing);
+```
+
+
+
+####Tree
+First method we will use is Prediction with **trees**.
+```{r}
+modelTree <- train(classe ~ ., data=training, method='rpart')
+
+table(predict(modelTree, newdata=training), training$classe)
+confusionMatrix(predict(modelTree, newdata=training), training$classe)
+table(predict(modelTree, newdata=testing), testing$classe)
+confusionMatrix(predict(modelTree, newdata=testing), testing$classe)
+```
+As we can see this method didn't performed well on training set and of course on testing set as well. Maybe that's because is't hard to find one feature that would predict case *classe* well. The decision tree shows us that the algorithm have used only few features, which apparent's wasn't enough:
+```{r}
+print(modelTree$finalModel)
+```
+
+####Model based
+Next method is **Linear discriminant analysis**. This method based on probability and might perform better since it uses all features at ones.
+```{r}
+modelLDA <- train(classe ~ ., data=training, method='lda')
+
+table(predict(modelLDA, newdata=training), training$classe)
+confusionMatrix(predict(modelLDA, newdata=training), training$classe)
+table(predict(modelLDA, newdata=testing), testing$classe)
+confusionMatrix(predict(modelLDA, newdata=testing), testing$classe)
+```
+Though LDA show better results than decision tree it still not sufficient. Perhaps this time it fails because almost all features are continuous. Probably grouping data in preprocessing state can help achive better results next time.
+
+####Random Forest
+Final model to test is **Random Forest**. This method uses more features than **tree** approach and devides continuos data in groups in process. So it should give better results as the previous methods. Though it's much slower in training.
+```{r, cache=TRUE}
+modelRF <- train(classe ~ ., data=training, method='rf', preProcess=c('center', 'scale'))
+
+table(predict(modelRF, newdata=training), training$classe)
+confusionMatrix(predict(modelRF, newdata=training), training$classe)
+table(predict(modelRF, newdata=testing), testing$classe)
+confusionMatrix(predict(modelRF, newdata=testing), testing$classe)
+```
+As you can see we achived our goal of *99%* efficiency both as in Specificity and Sensitivity as on training data so on testing.  
+So later we will use **Random Forest** method for prediction as we doubtfully will need to retrain our model too often, so speed shouldn't be a problem.
+
+###Prediction
+Now we are ready to use our model and algorithm for prediction of 20 unknown cases:
+```{r}
+answers <- predict(modelRF, newdata=task)
+answers
+```
+
+
+###Reproduction
+For those who wants to repeat the obove steps themselves you can use analyze.R script uploaded to [Github repository](https://github.com/volterr/MachineLearningAssignment) to run it on the data that are also included.  
+
+***Thank YOU***.
+
