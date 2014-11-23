@@ -8,4 +8,4 @@ It includes:
 3. Rmd file with report description and R code: **index.Rmd**
 4. Compiles HTML Report: **index.html**
   
-The *HTML* version of the report can be viewed on **[github pages](volterr.github.io/MachineLearningAssignment/index.html)**.
+The *HTML* version of the report can be viewed on **[github pages](https://volterr.github.io/MachineLearningAssignment/index.html)**.
