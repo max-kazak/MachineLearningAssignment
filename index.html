@@ -103,6 +103,7 @@ names(data.rel)</code></pre>
 </div>
 <div id="training" class="section level3">
 <h3>Training</h3>
+<pre class="r"><code>library(caret);</code></pre>
 <pre><code>## Warning: package 'caret' was built under R version 3.1.2</code></pre>
 <pre><code>## Loading required package: lattice
 ## Loading required package: ggplot2</code></pre>
@@ -122,15 +123,7 @@ dim(training); dim(testing);</code></pre>
 <h4>Tree</h4>
 <p>First method we will use is Prediction with <strong>trees</strong>.</p>
 <pre class="r"><code>modelTree &lt;- train(classe ~ ., data=training, method='rpart')</code></pre>
-<pre><code>## Loading required package: rpart</code></pre>
-<pre class="r"><code>table(predict(modelTree, newdata=training), training$classe)</code></pre>
-<pre><code>##    
-##        A    B    C    D    E
-##   A 3550 1090 1121 1033  366
-##   B   62  918   73  386  330
-##   C  284  650 1202  833  696
-##   D    0    0    0    0    0
-##   E   10    0    0    0 1133</code></pre>
+<p>Confusion matrix for training set:</p>
 <pre class="r"><code>confusionMatrix(predict(modelTree, newdata=training), training$classe)</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
@@ -163,14 +156,7 @@ dim(training); dim(testing);</code></pre>
 ## Detection Rate          0.258   0.0668   0.0875    0.000   0.0825
 ## Detection Prevalence    0.521   0.1288   0.2668    0.000   0.0832
 ## Balanced Accuracy       0.771   0.6343   0.6422    0.500   0.7239</code></pre>
-<pre class="r"><code>table(predict(modelTree, newdata=testing), testing$classe)</code></pre>
-<pre><code>##    
-##        A    B    C    D    E
-##   A 1533  497  466  416  158
-##   B   19  368   35  182  156
-##   C  118  274  525  366  270
-##   D    0    0    0    0    0
-##   E    4    0    0    0  498</code></pre>
+<p>Confusion matrix for testing set:</p>
 <pre class="r"><code>confusionMatrix(predict(modelTree, newdata=testing), testing$classe)</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
@@ -224,15 +210,7 @@ dim(training); dim(testing);</code></pre>
 <h4>Model based</h4>
 <p>Next method is <strong>Linear discriminant analysis</strong>. This method based on probability and might perform better since it uses all features at ones.</p>
 <pre class="r"><code>modelLDA &lt;- train(classe ~ ., data=training, method='lda')</code></pre>
-<pre><code>## Loading required package: MASS</code></pre>
-<pre class="r"><code>table(predict(modelLDA, newdata=training), training$classe)</code></pre>
-<pre><code>##    
-##        A    B    C    D    E
-##   A 3239  362  231  124  107
-##   B   99 1737  210   92  367
-##   C  260  347 1607  281  213
-##   D  296   99  279 1669  239
-##   E   12  113   69   86 1599</code></pre>
+<p>Confusion matrix for training set:</p>
 <pre class="r"><code>confusionMatrix(predict(modelLDA, newdata=training), training$classe)</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
@@ -265,14 +243,7 @@ dim(training); dim(testing);</code></pre>
 ## Detection Rate          0.236    0.126    0.117    0.121    0.116
 ## Detection Prevalence    0.296    0.182    0.197    0.188    0.137
 ## Balanced Accuracy       0.873    0.792    0.787    0.831    0.804</code></pre>
-<pre class="r"><code>table(predict(modelLDA, newdata=testing), testing$classe)</code></pre>
-<pre><code>##    
-##        A    B    C    D    E
-##   A 1412  171  108   50   47
-##   B   47  716   78   36  167
-##   C  101  152  692  108   98
-##   D  103   52  115  744   95
-##   E   11   48   33   26  675</code></pre>
+<p>Confusion matrix for testing set:</p>
 <pre class="r"><code>confusionMatrix(predict(modelLDA, newdata=testing), testing$classe)</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
@@ -311,18 +282,7 @@ dim(training); dim(testing);</code></pre>
 <h4>Random Forest</h4>
 <p>Final model to test is <strong>Random Forest</strong>. This method uses more features than <strong>tree</strong> approach and devides continuos data in groups in process. So it should give better results as the previous methods. Though it’s much slower in training.</p>
 <pre class="r"><code>modelRF &lt;- train(classe ~ ., data=training, method='rf', preProcess=c('center', 'scale'))</code></pre>
-<pre><code>## Loading required package: randomForest</code></pre>
-<pre><code>## Warning: package 'randomForest' was built under R version 3.1.2</code></pre>
-<pre><code>## randomForest 4.6-10
-## Type rfNews() to see new features/changes/bug fixes.</code></pre>
-<pre class="r"><code>table(predict(modelRF, newdata=training), training$classe)</code></pre>
-<pre><code>##    
-##        A    B    C    D    E
-##   A 3906    0    0    0    0
-##   B    0 2658    0    0    0
-##   C    0    0 2396    0    0
-##   D    0    0    0 2252    0
-##   E    0    0    0    0 2525</code></pre>
+<p>Confusion matrix for training set:</p>
 <pre class="r"><code>confusionMatrix(predict(modelRF, newdata=training), training$classe)</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
@@ -355,28 +315,21 @@ dim(training); dim(testing);</code></pre>
 ## Detection Rate          0.284    0.193    0.174    0.164    0.184
 ## Detection Prevalence    0.284    0.193    0.174    0.164    0.184
 ## Balanced Accuracy       1.000    1.000    1.000    1.000    1.000</code></pre>
-<pre class="r"><code>table(predict(modelRF, newdata=testing), testing$classe)</code></pre>
-<pre><code>##    
-##        A    B    C    D    E
-##   A 1673    1    0    0    0
-##   B    1 1138    2    0    2
-##   C    0    0 1024    1    0
-##   D    0    0    0  963    7
-##   E    0    0    0    0 1073</code></pre>
+<p>Confusion matrix for testing set:</p>
 <pre class="r"><code>confusionMatrix(predict(modelRF, newdata=testing), testing$classe)</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
-##          A 1673    1    0    0    0
-##          B    1 1138    2    0    2
-##          C    0    0 1024    1    0
-##          D    0    0    0  963    7
-##          E    0    0    0    0 1073
+##          A 1673    2    0    0    0
+##          B    1 1137    2    0    2
+##          C    0    0 1024    2    0
+##          D    0    0    0  962    6
+##          E    0    0    0    0 1074
 ## 
 ## Overall Statistics
 ##                                         
-##                Accuracy : 0.998         
+##                Accuracy : 0.997         
 ##                  95% CI : (0.996, 0.999)
 ##     No Information Rate : 0.284         
 ##     P-Value [Acc &gt; NIR] : &lt;2e-16        
@@ -387,14 +340,14 @@ dim(training); dim(testing);</code></pre>
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity             0.999    0.999    0.998    0.999    0.992
+## Sensitivity             0.999    0.998    0.998    0.998    0.993
 ## Specificity             1.000    0.999    1.000    0.999    1.000
-## Pos Pred Value          0.999    0.996    0.999    0.993    1.000
+## Pos Pred Value          0.999    0.996    0.998    0.994    1.000
 ## Neg Pred Value          1.000    1.000    1.000    1.000    0.998
 ## Prevalence              0.284    0.194    0.174    0.164    0.184
-## Detection Rate          0.284    0.193    0.174    0.164    0.182
-## Detection Prevalence    0.284    0.194    0.174    0.165    0.182
-## Balanced Accuracy       1.000    0.999    0.999    0.999    0.996</code></pre>
+## Detection Rate          0.284    0.193    0.174    0.163    0.182
+## Detection Prevalence    0.285    0.194    0.174    0.164    0.182
+## Balanced Accuracy       0.999    0.999    0.999    0.998    0.996</code></pre>
 <p>As you can see we achived our goal of <em>99%</em> efficiency both as in Specificity and Sensitivity as on training data so on testing.<br />So later we will use <strong>Random Forest</strong> method for prediction as we doubtfully will need to retrain our model too often, so speed shouldn’t be a problem.</p>
 </div>
 </div>

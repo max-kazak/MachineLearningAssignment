@@ -37,7 +37,7 @@ As the result only `r length(names(data.rel))` features left including **`r name
 
 
 ###Training
-```{r, echo=FALSE}
+```{r, results='hide'}
 library(caret);
 ```
 Finally we seems to be prepared for actual ML training. In this section we create few models and define which one suits our purposes.
@@ -56,12 +56,15 @@ dim(training); dim(testing);
 
 ####Tree
 First method we will use is Prediction with **trees**.
-```{r}
+```{r, cache=TRUE, results='hide'}
 modelTree <- train(classe ~ ., data=training, method='rpart')
-
-table(predict(modelTree, newdata=training), training$classe)
+```
+Confusion matrix for training set:
+```{r}
 confusionMatrix(predict(modelTree, newdata=training), training$classe)
-table(predict(modelTree, newdata=testing), testing$classe)
+```
+Confusion matrix for testing set:
+```{r}
 confusionMatrix(predict(modelTree, newdata=testing), testing$classe)
 ```
 As we can see this method didn't performed well on training set and of course on testing set as well. Maybe that's because is't hard to find one feature that would predict case *classe* well. The decision tree shows us that the algorithm have used only few features, which apparent's wasn't enough:
@@ -71,24 +74,30 @@ print(modelTree$finalModel)
 
 ####Model based
 Next method is **Linear discriminant analysis**. This method based on probability and might perform better since it uses all features at ones.
-```{r}
+```{r, cache=TRUE, results='hide'}
 modelLDA <- train(classe ~ ., data=training, method='lda')
-
-table(predict(modelLDA, newdata=training), training$classe)
+```
+Confusion matrix for training set:
+```{r}
 confusionMatrix(predict(modelLDA, newdata=training), training$classe)
-table(predict(modelLDA, newdata=testing), testing$classe)
+```
+Confusion matrix for testing set:
+```{r}
 confusionMatrix(predict(modelLDA, newdata=testing), testing$classe)
 ```
 Though LDA show better results than decision tree it still not sufficient. Perhaps this time it fails because almost all features are continuous. Probably grouping data in preprocessing state can help achive better results next time.
 
 ####Random Forest
 Final model to test is **Random Forest**. This method uses more features than **tree** approach and devides continuos data in groups in process. So it should give better results as the previous methods. Though it's much slower in training.
-```{r, cache=TRUE}
+```{r, cache=TRUE, results='hide'}
 modelRF <- train(classe ~ ., data=training, method='rf', preProcess=c('center', 'scale'))
-
-table(predict(modelRF, newdata=training), training$classe)
+```
+Confusion matrix for training set:
+```{r}
 confusionMatrix(predict(modelRF, newdata=training), training$classe)
-table(predict(modelRF, newdata=testing), testing$classe)
+```
+Confusion matrix for testing set:
+```{r}
 confusionMatrix(predict(modelRF, newdata=testing), testing$classe)
 ```
 As you can see we achived our goal of *99%* efficiency both as in Specificity and Sensitivity as on training data so on testing.  
